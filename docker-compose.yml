@@ -33,18 +33,18 @@ services:
       - web
       - default
     depends_on:
-      - database
+      - mysql
     ports:
       - 80:80
     volumes:
       - type: volume
         source: osticket-dbvolume
         target: /var/lib/mysql
-      - ./src:/data/upload
+#      - ./src:/data/upload
 
 
-  database:
-    container_name: osticket_db
+  mysql:
+    container_name: osticket_mysql
     restart: always
     env_file: .db.env
     image: mysql:5
@@ -64,7 +64,7 @@ services:
         source: osticket-backups
         target: /backups
     depends_on:
-      - database
+      - mysql
       
 volumes:
     osticket-dbvolume:
