@@ -22,7 +22,7 @@ services:
     container_name: osticket
     restart: always
     env_file: .osticket.env
-    image: osticket/osticket
+    image: campbellsoftwaresolutions/osticket
     labels:
       - "org.msf.description=osticket"
       - "traefik.backend=osticket"
