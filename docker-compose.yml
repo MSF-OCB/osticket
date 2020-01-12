@@ -1,0 +1,77 @@
+version: '3.5'
+services:
+
+# for dev docker-compose up -d osticket
+# then on port 80
+
+  traefik:
+    image: traefik # The official Traefik docker image
+    command: --api #--docker # Enables the web UI and tells Træfik to listen to docker
+    ports:
+      - "80:80"     # The HTTP port
+      - "443:443"     # The HTTPS port
+      - "8080:8080" # The Web UI (enabled by --api)
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # So that Traefik can listen to the Docker events
+      - ./traefik.toml:/traefik.toml
+      - ./acme.json:/acme.json
+    container_name: traefik
+    restart: always
+
+  osticket:
+    container_name: osticket
+    restart: always
+    env_file: .osticket.env
+    image: osticket/osticket
+    labels:
+      - "org.msf.description=osticket"
+      - "traefik.backend=osticket"
+      - "traefik.frontend.rule=Host:helpdesk.sherlog.ocb.msf.org"
+      - "traefik.enable=true"
+      - "traefik.port=80"
+    networks:
+      - web
+      - default
+    depends_on:
+      - database
+    ports:
+      - 80:80
+    volumes:
+      - type: volume
+        source: osticket-dbvolume
+        target: /var/lib/mysql
+      - ./src:/data/upload
+
+
+  database:
+    container_name: osticket_db
+    restart: always
+    env_file: .db.env
+    image: mysql:5
+    volumes:
+      - type: volume
+        source: osticket-dbvolume
+        target: /var/lib/mysql
+
+  backup:
+    image: msfocbehealth/backup:latest
+    labels:
+      - "org.msf.description=backup"
+    restart: always
+    env_file: .bnc.env
+    volumes:
+      - type: volume
+        source: osticket-backups
+        target: /backups
+    depends_on:
+      - database
+      
+volumes:
+    osticket-dbvolume:
+        name: osticket-dbvolume
+    osticket-backups:
+        name: osticket_backups
+
+networks:
+  web:
+    external: true
