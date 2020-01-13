@@ -21,7 +21,9 @@ services:
   osticket:
     container_name: osticket
     restart: always
-    env_file: .osticket.env
+    env_file: 
+      - .osticket.env
+      - .db.env
     image: campbellsoftwaresolutions/osticket
     labels:
       - "org.msf.description=osticket"
@@ -42,7 +44,7 @@ services:
       - type: volume
         source: osticket-dbvolume
         target: /var/lib/mysql
-#      - ./src:/data/upload
+      - ./src:/data/upload
 
 
   mysql:
