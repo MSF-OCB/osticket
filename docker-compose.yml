@@ -32,6 +32,8 @@ services:
     networks:
       - web
       - default
+    links:
+      - mysql:mysql
     depends_on:
       - mysql
     ports:
