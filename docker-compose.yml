@@ -4,27 +4,14 @@ services:
 # for dev docker-compose up -d osticket
 # then on port 80
 
-  traefik:
-    image: traefik # The official Traefik docker image
-    command: --api #--docker # Enables the web UI and tells Træfik to listen to docker
-    ports:
-      - "80:80"     # The HTTP port
-      - "443:443"     # The HTTPS port
-      - "8080:8080" # The Web UI (enabled by --api)
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock # So that Traefik can listen to the Docker events
-      - ./traefik.toml:/traefik.toml
-      - ./acme.json:/acme.json
-    container_name: traefik
-    restart: always
-
   osticket:
     container_name: osticket
     restart: always
     env_file: 
       - .osticket.env
       - .db.env
-    image: campbellsoftwaresolutions/osticket
+    #image: campbellsoftwaresolutions/osticket
+    image: msfocb/osticket:1.14.1_awesome
     labels:
       - "org.msf.description=osticket"
       - "traefik.backend=osticket"
@@ -36,14 +23,10 @@ services:
       - default
     depends_on:
       - mysql
-    ports:
-      - 80:80
     volumes:
       - type: volume
         source: osticket-dbvolume
         target: /var/lib/mysql
-      - ./src:/data/upload
-
 
   mysql:
     container_name: osticket_db
