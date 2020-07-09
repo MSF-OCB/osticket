@@ -1,32 +1,28 @@
 version: '3.5'
 services:
 
-# for dev docker-compose up -d osticket
-# then on port 80
-
   osticket:
     container_name: osticket
     restart: always
-    env_file: 
+    env_file:
       - .osticket.env
       - .db.env
-    #image: campbellsoftwaresolutions/osticket
     image: msfocb/osticket:1.14.1_awesome
+    volumes:
+      - type: bind
+        source: ./auth-openid-MS.phar
+        target: /data/upload/include/plugins/auth-openid-MS.phar
+        read_only: true
     labels:
-      - "org.msf.description=osticket"
-      - "traefik.backend=osticket"
-      - "traefik.frontend.rule=Host:helpdesk.sherlog.ocb.msf.org"
-      - "traefik.enable=true"
-      - "traefik.port=80"
+      - traefik.enable=true
+      - traefik.http.routers.osticket.entrypoints=websecure
+      - traefik.http.routers.osticket.rule=Host(`helpdesk.sherlog.ocb.msf.org`)
+      - traefik.http.routers.osticket.tls.certresolver=myhttpchallenge
     networks:
       - web
       - default
     depends_on:
       - mysql
-    volumes:
-      - type: volume
-        source: osticket-dbvolume
-        target: /var/lib/mysql
 
   mysql:
     container_name: osticket_db
@@ -35,7 +31,7 @@ services:
     image: mysql:5
     volumes:
       - type: volume
-        source: osticket-dbvolume
+        source: osticket_dbvolume
         target: /var/lib/mysql
 
   backup:
@@ -46,17 +42,18 @@ services:
     env_file: .bnc.env
     volumes:
       - type: volume
-        source: osticket-backups
+        source: osticket_backups
         target: /backups
     depends_on:
       - mysql
-      
+
 volumes:
-    osticket-dbvolume:
-        name: osticket-dbvolume
-    osticket-backups:
+    osticket_dbvolume:
+        name: osticket_dbvolume
+    osticket_backups:
         name: osticket_backups
 
 networks:
   web:
     external: true
+
