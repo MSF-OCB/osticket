@@ -1,5 +1,6 @@
-campbell
 backups
+osticket-config
 .osticket.env
 .db.env
 .bnc.env
+

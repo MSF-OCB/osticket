@@ -7,12 +7,23 @@ services:
     env_file:
       - .osticket.env
       - .db.env
-    image: msfocb/osticket:1.14.1_awesome
+    image: msfocb/osticket_awesome
+    build:
+      context: osticket-docker
+      dockerfile: Dockerfile
     volumes:
+      - type: bind
+        source: ./osticket-config
+        target: /data/upload
       - type: bind
         source: ./auth-openid-MS.phar
         target: /data/upload/include/plugins/auth-openid-MS.phar
         read_only: true
+    tmpfs:
+      - /tmp
+      - /run
+    expose:
+      - 80
     labels:
       - traefik.enable=true
       - traefik.http.routers.osticket.entrypoints=websecure
