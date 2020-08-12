@@ -28,6 +28,7 @@ services:
       - traefik.enable=true
       - traefik.http.routers.osticket.entrypoints=websecure
       - traefik.http.routers.osticket.rule=Host(`helpdesk.sherlog.ocb.msf.org`)
+      - traefik.http.routers.osticket.middlewares=security-headers
       - traefik.http.routers.osticket.tls.certresolver=letsencrypt
     networks:
       - web
