@@ -1,0 +1,49 @@
+version: '3.5'
+services:
+
+  osticket:
+    container_name: osticket
+    restart: always
+    env_file:
+      - .osticket.env
+      - .db.env
+    image: msfocb/osticket_awesome
+    build:
+      context: osticket-docker
+      dockerfile: Dockerfile
+    volumes:
+      - type: bind
+        source: ./osticket-config
+        target: /data/upload
+      - type: bind
+        source: ./auth-openid-MS.phar
+        target: /data/upload/include/plugins/auth-openid-MS.phar
+        read_only: true
+    tmpfs:
+      - /tmp
+      - /run
+    expose:
+      - 80
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.osticket.rule=Host(`helpdesk.sherlog.ocb.msf.org`)
+    networks:
+      - web
+      - default
+    depends_on:
+      - mysql
+
+  mysql:
+    container_name: osticket_db
+    restart: always
+    env_file: .db.env
+    image: mysql:5
+    volumes:
+      - type: volume
+        source: osticket_dbvolume
+        target: /var/lib/mysql
+
+volumes:
+    osticket_dbvolume:
+        name: osticket_dbvolume
+
