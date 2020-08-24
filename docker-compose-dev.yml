@@ -22,13 +22,12 @@ services:
     tmpfs:
       - /tmp
       - /run
-    expose:
-      - 80
+    ports:
+      - '80:80'
     labels:
       - traefik.enable=true
       - traefik.http.routers.osticket.rule=Host(`helpdesk.sherlog.ocb.msf.org`)
     networks:
-      - web
       - default
     depends_on:
       - mysql
