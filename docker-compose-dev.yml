@@ -1,3 +1,6 @@
+## Custom MSF-OCB configuration file "docker-compose.yml" for PHP app "OSTicket" for <https://helpdesk.sherlog.ocb.msf.org/> (<https://osticket.com/> with addition of <https://osticketawesome.com> plus customisations)
+## XKa - v2020.10.28.1 - Variant: Development
+
 version: '3.5'
 services:
 
@@ -14,20 +17,19 @@ services:
     volumes:
       - type: bind
         source: ./osticket-config
-        target: /data/upload
-      - type: bind
-        source: ./auth-openid-MS.phar
-        target: /data/upload/include/plugins/auth-openid-MS.phar
-        read_only: true
+        target: /var/www/html
     tmpfs:
       - /tmp
       - /run
+#    expose:
+#      - 80
     ports:
       - '80:80'
     labels:
       - traefik.enable=true
       - traefik.http.routers.osticket.rule=Host(`helpdesk.sherlog.ocb.msf.org`)
     networks:
+#      - web
       - default
     depends_on:
       - mysql
@@ -42,7 +44,27 @@ services:
         source: osticket_dbvolume
         target: /var/lib/mysql
 
+#  backup:
+#    image: msfocbehealth/backup:latest
+#    labels:
+#      - "org.msf.description=backup"
+#    restart: always
+#    env_file: .bnc.env
+#    volumes:
+#      - type: volume
+#        source: osticket_backups
+#        target: /backups
+#    depends_on:
+#      - mysql
+
 volumes:
     osticket_dbvolume:
         name: osticket_dbvolume
+#    osticket_backups:
+#        name: osticket_backups
 
+#networks:
+#  web:
+#    external: true
+
+##EOF

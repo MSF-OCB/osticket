@@ -1,6 +1,11 @@
 <?php
 // (C) Campbell Software Solutions 2015
 // Portions (C) 2006-2015 osTicket
+// *** MODIFIED for MSF-OCB - XKa - v2020.10.28.0
+
+define('APP_WWW_ROOT_DIR', '/var/www/html');
+define('APP_USER', 'www-data');
+define('APP_GROUP', 'www-data');
 
 //Configure settings from environmental variables
 $_SERVER['HTTP_ACCEPT_LANGUAGE'] = getenv("LANGUAGE") ?: "en-us";
@@ -35,7 +40,7 @@ $vars = array(
   'cron_interval'   => getenv("CRON_INTERVAL")        ?: 5,
 
   'siri'     => getenv("INSTALL_SECRET"),
-  'config'   => getenv("INSTALL_CONFIG") ?: '/data/upload/include/ost-sampleconfig.php'
+  'config'   => getenv("INSTALL_CONFIG") ?: APP_WWW_ROOT_DIR . '/include/ost-sampleconfig.php'
 );
 
 //Script settings
@@ -62,8 +67,8 @@ function convertStrToBool($varName, $default) {
 define("URL",$vars['url']);
 
 //Require files (must be done before any output to avoid session start warnings)
-chdir("/data/upload/setup_hidden");
-require "/data/upload/setup_hidden/setup.inc.php";
+chdir(APP_WWW_ROOT_DIR . '/setup_hidden');
+require APP_WWW_ROOT_DIR . '/setup_hidden/setup.inc.php';
 require_once INC_DIR.'class.installer.php';
 
 
@@ -71,7 +76,7 @@ require_once INC_DIR.'class.installer.php';
 define('MAIL_CONFIG_FILE','/etc/msmtp');
 
 echo "Configuring mail settings\n";
-if (!$mailConfig = file_get_contents('/data/msmtp.conf')) {
+if (!$mailConfig = file_get_contents(__DIR__ . '/../etc/msmtp.conf')) {
   err("Failed to load mail configuration file");
 };
 $mailConfig = str_replace('%SMTP_HOSTNAME%', $vars['smtp_host'], $mailConfig);
@@ -85,18 +90,18 @@ $mailConfig = str_replace('%SMTP_TLS_CERTS%', $vars['smtp_tls_certs'], $mailConf
 $mailConfig = str_replace('%SMTP_TLS%', boolToOnOff(convertStrToBool('smtp_tls',true)), $mailConfig);
 $mailConfig = str_replace('%SMTP_AUTH%', boolToOnOff($vars['smtp_user'] != ''), $mailConfig);
 
-if (!file_put_contents(MAIL_CONFIG_FILE, $mailConfig) || !chown(MAIL_CONFIG_FILE,'www-data')
-   || !chgrp(MAIL_CONFIG_FILE,'www-data') || !chmod(MAIL_CONFIG_FILE,0600)) {
+if (!file_put_contents(MAIL_CONFIG_FILE, $mailConfig) || !chown(MAIL_CONFIG_FILE,APP_USER)
+   || !chgrp(MAIL_CONFIG_FILE,APP_GROUP) || !chmod(MAIL_CONFIG_FILE,0600)) {
    err("Failed to write mail configuration file");
 }
 
 //Cron interval - enable or disable
-define('CRON_JOB_FILE','/var/spool/cron/crontabs/www-data');
+define('CRON_JOB_FILE','/var/spool/cron/crontabs/' . APP_USER);
 
 $interval = (int)$vars['cron_interval'];
 if ($interval > 0) {
   echo "OSTicket cron job is set to run every {$interval} minutes\n";
-  $cron = "*/{$interval} * * * * /usr/local/bin/php -c /usr/local/etc/php/php.ini /data/upload/api/cron.php\n";
+  $cron = "*/{$interval} * * * * /usr/local/bin/php -c /usr/local/etc/php/php.ini " . APP_WWW_ROOT_DIR . "/api/cron.php\n";
   file_put_contents(CRON_JOB_FILE, $cron);
 } else {
   echo "OSTicket cron job is disabled\n";
@@ -106,7 +111,7 @@ if ($interval > 0) {
 /************************* OSTicket Installation *******************************************/
 
 //Create installer class
-define('OSTICKET_CONFIGFILE','/data/upload/include/ost-config.php');
+define('OSTICKET_CONFIGFILE', APP_WWW_ROOT_DIR . '/include/ost-config.php');
 $installer = new Installer(OSTICKET_CONFIGFILE); //Installer instance.
 
 //Determine if using linked container
@@ -167,7 +172,7 @@ elseif(!db_select_database($vars['dbname']) && !db_create_database($vars['dbname
 }
 
 //Create secret if not set by env var and not previously stored
-DEFINE('SECRET_FILE','/data/secret.txt');
+DEFINE('SECRET_FILE', __DIR__ . '/../etc/secret.txt');
 if (!$vars['siri']) {
   if (file_exists(SECRET_FILE)) {
     echo "Loading installation secret\n";

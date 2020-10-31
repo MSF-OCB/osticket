@@ -1,3 +1,6 @@
+## Custom MSF-OCB configuration file "docker-compose.yml" for PHP app "OSTicket" for <https://helpdesk.sherlog.ocb.msf.org/> (<https://osticket.com/> with addition of <https://osticketawesome.com> plus customisations)
+## XKa - v2020.10.28.1 - Variant: Production
+
 version: '3.5'
 services:
 
@@ -14,16 +17,14 @@ services:
     volumes:
       - type: bind
         source: ./osticket-config
-        target: /data/upload
-      - type: bind
-        source: ./auth-openid-MS.phar
-        target: /data/upload/include/plugins/auth-openid-MS.phar
-        read_only: true
+        target: /var/www/html
     tmpfs:
       - /tmp
       - /run
     expose:
       - 80
+#    ports:
+#      - '80:80'
     labels:
       - traefik.enable=true
       - traefik.http.routers.osticket.rule=Host(`helpdesk.sherlog.ocb.msf.org`)
@@ -66,3 +67,4 @@ networks:
   web:
     external: true
 
+##EOF
