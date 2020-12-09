@@ -1,7 +1,7 @@
 <?php
 // (C) Campbell Software Solutions 2015
 // Portions (C) 2006-2015 osTicket
-// *** MODIFIED for MSF-OCB - XKa - v2020.10.28.0
+// *** MODIFIED for MSF-OCB - XKa - v2020.12.09.0
 
 define('APP_WWW_ROOT_DIR', '/var/www/html');
 define('APP_USER', 'www-data');
@@ -37,7 +37,7 @@ $vars = array(
   'smtp_user'       => getenv("SMTP_USER"),
   'smtp_pass'       => getenv("SMTP_PASSWORD"),
 
-  'cron_interval'   => getenv("CRON_INTERVAL")        ?: 5,
+  'cron_interval'   => getenv("CRON_INTERVAL")        ?: 1,
 
   'siri'     => getenv("INSTALL_SECRET"),
   'config'   => getenv("INSTALL_CONFIG") ?: APP_WWW_ROOT_DIR . '/include/ost-sampleconfig.php'
@@ -96,13 +96,13 @@ if (!file_put_contents(MAIL_CONFIG_FILE, $mailConfig) || !chown(MAIL_CONFIG_FILE
 }
 
 //Cron interval - enable or disable
-define('CRON_JOB_FILE','/var/spool/cron/crontabs/' . APP_USER);
+define('CRON_JOB_FILE','/etc/crontab');
 
 $interval = (int)$vars['cron_interval'];
 if ($interval > 0) {
   echo "OSTicket cron job is set to run every {$interval} minutes\n";
-  $cron = "*/{$interval} * * * * /usr/local/bin/php -c /usr/local/etc/php/php.ini " . APP_WWW_ROOT_DIR . "/api/cron.php\n";
-  file_put_contents(CRON_JOB_FILE, $cron);
+  $cron = "\n# OSTicket cron job (e.g. to periodically fetch mail from mailboxes configured via app page <./scp/emails.php>):\n*/{$interval} * * * * " . APP_USER . " /usr/local/bin/php -c /usr/local/etc/php/php.ini " . APP_WWW_ROOT_DIR . "/api/cron.php\n";
+  file_put_contents(CRON_JOB_FILE, $cron, FILE_APPEND | LOCK_EX);
 } else {
   echo "OSTicket cron job is disabled\n";
   unlink(CRON_JOB_FILE);

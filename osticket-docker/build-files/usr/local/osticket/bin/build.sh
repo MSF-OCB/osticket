@@ -2,7 +2,7 @@
 ## Custom MSF-OCB script for PHP app "OSTicket" for <https://helpdesk.sherlog.ocb.msf.org/> (<https://osticket.com/> with addition of <https://osticketawesome.com> plus customisations)
 ## Inspired from <https://hub.docker.com/r/campbellsoftwaresolutions/osticket/dockerfile>
 ## N.B.: Should be executed when building the Docker container "osticket-docker" (based on official Docker hub image "php:7-apache", using "Debian GNU/Linux 10 (buster)"), inside the container as super-user "root"!
-## XKa - v2020.10.28.0
+## XKa - v2020.12.09.0
 
 set -e
 
@@ -60,8 +60,10 @@ a2enmod rewrite
 docker-php-ext-install gd ldap mysqli sockets gettext intl opcache
 docker-php-ext-configure imap --with-kerberos --with-imap-ssl
 docker-php-ext-install imap
+# (see e.g. <https://stackoverflow.com/questions/34170434/how-install-apcu-as-php7-extension-on-debian> , <https://stackoverflow.com/questions/8141407/install-pecl-modules-without-the-prompts>)
 pear config-set temp_dir /root/tmp
-pecl install apcu
+pecl channel-update pecl.php.net
+pecl install apcu < /dev/null
 docker-php-ext-enable apcu
 pear config-set temp_dir "${_pear_orig_temp_dir}"
 
