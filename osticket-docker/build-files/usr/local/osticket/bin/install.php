@@ -1,7 +1,7 @@
 <?php
 // (C) Campbell Software Solutions 2015
 // Portions (C) 2006-2015 osTicket
-// *** MODIFIED for MSF-OCB - XKa - v2020.12.09.0
+// *** MODIFIED for MSF-OCB - XKa - v2020.12.09.1
 
 define('APP_WWW_ROOT_DIR', '/var/www/html');
 define('APP_USER', 'www-data');
@@ -97,15 +97,31 @@ if (!file_put_contents(MAIL_CONFIG_FILE, $mailConfig) || !chown(MAIL_CONFIG_FILE
 
 //Cron interval - enable or disable
 define('CRON_JOB_FILE','/etc/crontab');
+define('CRON_JOB_FILE_BAK', CRON_JOB_FILE .'.[osticket].bak');
 
+// TODO: consider crontab file line management (e.g. <https://www.kavoir.com/2011/10/php-crontab-class-to-add-and-remove-cron-jobs.html>?)
 $interval = (int)$vars['cron_interval'];
 if ($interval > 0) {
-  echo "OSTicket cron job is set to run every {$interval} minutes\n";
-  $cron = "\n# OSTicket cron job (e.g. to periodically fetch mail from mailboxes configured via app page <./scp/emails.php>):\n*/{$interval} * * * * " . APP_USER . " /usr/local/bin/php -c /usr/local/etc/php/php.ini " . APP_WWW_ROOT_DIR . "/api/cron.php\n";
-  file_put_contents(CRON_JOB_FILE, $cron, FILE_APPEND | LOCK_EX);
+  if (file_exists(CRON_JOB_FILE_BAK)) {
+    echo "OSTicket cron job was already added by this script to crontab file '" . CRON_JOB_FILE . "' - skipping...\n";
+  } else {
+    echo "OSTicket cron job is being added...\n";
+    copy(CRON_JOB_FILE, CRON_JOB_FILE_BAK) or err("Failed to back up crontab file '" . CRON_JOB_FILE . "'");
+    $cron = "\n# OSTicket cron job (e.g. to periodically fetch mail from mailboxes configured via app page <./scp/emails.php>):\n*/{$interval} * * * * " . APP_USER . " /usr/local/bin/php -c /usr/local/etc/php/php.ini " . APP_WWW_ROOT_DIR . "/api/cron.php\n";
+    if (file_put_contents(CRON_JOB_FILE, $cron, FILE_APPEND | LOCK_EX) === false) {
+      err("Failed to append to crontab file '" . CRON_JOB_FILE . "'");
+    }
+    echo "OSTicket cron job is added to crontab file '" . CRON_JOB_FILE . "' and set to run every {$interval} minutes\n";
+  }
 } else {
-  echo "OSTicket cron job is disabled\n";
-  unlink(CRON_JOB_FILE);
+  if (file_exists(CRON_JOB_FILE_BAK)) {
+    echo "OSTicket cron job is being deleted...\n";
+    rename(CRON_JOB_FILE, CRON_JOB_FILE . '~') or err("Failed to rename '" . CRON_JOB_FILE . "'");
+    rename(CRON_JOB_FILE_BAK, CRON_JOB_FILE) or err("Failed to rename '" . CRON_JOB_FILE_BAK . "' to '" . CRON_JOB_FILE . "'");
+    echo "OSTicket cron job is deleted from crontab file '" . CRON_JOB_FILE . "'\n";
+  } else {
+    echo "OSTicket cron job was not added by this script to crontab file '" . CRON_JOB_FILE . "' - skipping...\n";
+  }
 }
 
 /************************* OSTicket Installation *******************************************/
