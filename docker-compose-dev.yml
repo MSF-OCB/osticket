@@ -1,5 +1,5 @@
 ## Custom MSF-OCB configuration file "docker-compose.yml" for PHP app "OSTicket" for <https://helpdesk.sherlog.ocb.msf.org/> (<https://osticket.com/> with addition of <https://osticketawesome.com> plus customisations)
-## XKa - v2021.05.28.1 - Variant: Development
+## XKa - v2021.06.09.0 - Variant: Development
 
 version: '3.5'
 services:
@@ -20,10 +20,11 @@ services:
     env_file: .env
     environment:
       - "MYSQL_HOST=${MYSQL_HOST:-db}"
-    image: msfocb/osticket_awesome
-    build:
-      context: docker-sherlog-osticket-web
-      dockerfile: Dockerfile
+    image: docker.pkg.github.com/msf-ocb/sherlog-osticket-docker/sherlog-osticket-web:deploy
+#    image: msfocb/osticket_awesome
+#    build:
+#      context: docker-sherlog-osticket-web
+#      dockerfile: Dockerfile
     volumes:
       - type: bind
         source: ./sherlog-osticket-web-html
@@ -34,8 +35,8 @@ services:
     expose:
       - "${HTTPD_PORT}"
 ### DEBUG >>> ###
-    ports:
-      - "${HTTPD_PORT}:${HTTPD_PORT}"
+#    ports:
+#      - "${HTTPD_PORT}:${HTTPD_PORT}"
 ### DEBUG <<< ###
 #    labels:
 #      - "traefik.enable=true"
