@@ -1,5 +1,5 @@
 ## Custom MSF-OCB configuration file "docker-compose.yml" for PHP app "OSTicket" for <https://helpdesk.sherlog.ocb.msf.org/> (<https://osticket.com/> with addition of <https://osticketawesome.com> plus customisations)
-## XKa - v2021.06.09.1 - Variant: Development
+## XKa - v2021.06.09.0 - Variant: Staging
 
 version: '3.5'
 services:
@@ -35,13 +35,13 @@ services:
     expose:
       - "${HTTPD_PORT}"
 ### DEBUG >>> ###
-    ports:
-      - "${HTTPD_PORT}:${HTTPD_PORT}"
+#    ports:
+#      - "${HTTPD_PORT}:${HTTPD_PORT}"
 ### DEBUG <<< ###
-#    labels:
-#      - "traefik.enable=true"
-#      - "traefik.http.routers.osticket.rule=Host(`helpdesk.sherlog.ocb.msf.org`)"
-#      - "traefik.http.routers.osticket.entrypoints=websecure"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.osticket.rule=Host(`helpdesk-staging.sherlog.ocb.msf.org`)"
+      - "traefik.http.routers.osticket.entrypoints=websecure"
     networks:
       - web
       - default
