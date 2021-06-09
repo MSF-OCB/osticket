@@ -1,6 +1,3 @@
 backups
-osticket-config
-.osticket.env
-.db.env
-.bnc.env
-
+sherlog-osticket-web-html
+.env
