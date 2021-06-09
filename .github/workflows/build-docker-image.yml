@@ -19,7 +19,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
           path: ./docker-sherlog-osticket-web
-          dockerfile: ./docker-sherlog-osticket-web/Dockerfile
           registry: docker.pkg.github.com
           repository: msf-ocb/sherlog-osticket/sherlog-osticket-web
           tag_with_ref: true
