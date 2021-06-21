@@ -1,12 +1,12 @@
 ## Custom MSF-OCB configuration file "docker-compose.yml" for PHP app "OSTicket" for <https://helpdesk.sherlog.ocb.msf.org/> (<https://osticket.com/> with addition of <https://osticketawesome.com> plus customisations)
-## XKa - v2021.06.09.0 - Variant: Staging
+## XKa - v2021.06.21.0 - Variant: Staging
 
 version: '3.5'
 services:
 
   db:
     container_name: sherlog-osticket-db
-#    restart: always
+    restart: always
     env_file: .env
     image: mysql:5
     volumes:
@@ -16,7 +16,7 @@ services:
 
   web:
     container_name: sherlog-osticket-web
-#    restart: always
+    restart: always
     env_file: .env
     environment:
       - "MYSQL_HOST=${MYSQL_HOST:-db}"
