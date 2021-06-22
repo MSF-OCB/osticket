@@ -1,0 +1,31 @@
+## Custom MSF-OCB configuration file "docker-compose.yml" for PHP app "OSTicket" for <https://helpdesk.sherlog.ocb.msf.org/> (<https://osticket.com/> with addition of <https://osticketawesome.com> plus customisations)
+## XKa - v2021.06.22.0 - Specific configuration override file: Production
+
+version: '3.7'
+
+services:
+
+  web:
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.osticket.rule=Host(`helpdesk.sherlog.ocb.msf.org`)"
+      - "traefik.http.routers.osticket.entrypoints=websecure"
+
+  backup:
+    container_name: sherlog-osticket-backup
+    image: msfocbehealth/backup:latest
+    labels:
+      - "org.msf.description=backup"
+    restart: always
+    env_file: .env
+    volumes:
+      - type: volume
+        source: sherlog-osticket-backup-data
+        target: /backups
+    depends_on:
+      - db
+
+volumes:
+    sherlog-osticket-backup-data:
+
+##EOF

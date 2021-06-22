@@ -1,0 +1,14 @@
+## Custom MSF-OCB configuration file "docker-compose.yml" for PHP app "OSTicket" for <https://helpdesk.sherlog.ocb.msf.org/> (<https://osticket.com/> with addition of <https://osticketawesome.com> plus customisations)
+## XKa - v2021.06.22.0 - Specific configuration override file: Development
+
+version: '3.7'
+
+services:
+
+  web:
+### DEBUG >>> ###
+    ports:
+      - "${HTTPD_PORT}:${HTTPD_PORT}"
+### DEBUG <<< ###
+
+##EOF
